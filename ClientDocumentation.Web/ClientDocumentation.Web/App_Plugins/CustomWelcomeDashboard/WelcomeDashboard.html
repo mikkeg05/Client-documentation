@@ -1,0 +1,25 @@
+﻿
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div class="welcome-dashboard" ng-controller="CustomWelcomeDashboardController as vm">
+        <h1><localize key="welcomeDashboard_heading">Default heading</localize> {{vm.UserName}}</h1>
+        <p><localize key="welcomeDashboard_bodytext">Default bodytext</localize></p>
+        <p><localize key="welcomeDashboard_copyright">Default copyright</localize></p>
+
+    </div>
+    <form>
+        <div>
+            <label for="clientName">Client name</label>
+            <input type="text" name="clientName" />
+        </div>
+    <button class="btn btn-primary btn-large" type="submit" value="clientName"><i class="icon-edit"></i>
+        create client</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,70 @@
+﻿@model  ClientMasterDataItem
+@{
+    var userService = Umbraco.Core.Composing.Current.Services.UserService;
+
+    <div class="col-lg-6">
+        <!-- Default Card Example-->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Client master data</h6>
+            </div>
+            <div class="card-body">
+
+
+                <p>Client since @Model.GetProperty("clientSince").Value()</p>
+                @foreach (var prop in Model.Address)
+                {
+                    <strong>Address:</strong><p>@prop.Address, @prop.Country, @prop.ZipCode, @prop.City</p>
+
+                }
+                <a href="#clientstakeholders" class="d-block card-header py-3" data-toggle="collapse"
+                   role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                    <h6 class="m-0 font-weight-bold text-primary">client stakeholders</h6>
+                </a>
+                <div class="collapse" id="clientstakeholders">
+                    <div class="card-body">
+                        @foreach (var prop in Model.ClientStakeholders)
+                        {
+                            string personKey = "a" + prop.Key;
+                            <a href="#@personKey" class="d-block card-header py-3" data-toggle="collapse"
+                               role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                                <h6 class="m-0 font-weight-bold text-primary">@prop.FullName</h6>
+                            </a>
+                            <div class="collapse" id="@personKey">
+                                <div class="card-body">
+                                    @foreach (var item in prop.Properties)
+                                    {
+                                        <p>@item.Value()</p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <a href="#AkqaTeam" class="d-block card-header py-3" data-toggle="collapse"
+                   role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                    <h6 class="m-0 font-weight-bold text-primary">Akqa team</h6>
+                </a>
+                <div class="collapse" id="AkqaTeam">
+                    <div class="card-body">
+
+                        @{
+                            var items = Model.Value<IEnumerable<IPublishedElement>>("teamMembers");
+
+                        }
+                        @foreach (var prop in items)
+                        {
+
+                            var value = prop.Value("user");
+                            long userId = value.TryConvertTo<Int64>().Result;
+                            var user = userService.GetUserById((int)userId);
+                            <p>@user.Name, @user.Email</p>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

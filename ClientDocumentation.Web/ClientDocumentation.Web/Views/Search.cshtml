@@ -1,0 +1,141 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<ClientDocumentation.Web.Models.ViewModels.SearchPageViewModel>
+@using ContentModels = ClientDocumentation.Web.Models.ModelsBuilder;
+@using Umbraco.Core.Services;
+@using Umbraco.Core.PropertyEditors;
+
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+
+}
+<div>
+    <form id="searchFilters" action="">
+        <input type="hidden" name="q" value="@Request.QueryString["q"]" />
+        @{
+            if (Model != null && Model.Filter != null && Model.Filter.AllDropdowns.Any())
+            {
+                foreach (var item in Model.Filter.AllDropdowns)
+                {
+                    <div class="dropdown show">
+                        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            @item.InputNameAttr
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+
+                            @{foreach (var dropdown in item.DropdownItems)
+                                {
+                                    <input name="@item.InputNameAttr" type="radio" value="@dropdown.Value" /> @dropdown.Value<br />
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        }
+        <button class="btn btn-primary" type="submit">
+            filter
+        </button>
+    </form>
+
+    @{
+
+        if (Model.ResultCount > 0)
+        {
+            <ul>
+
+                @foreach (var result in Model.SearchResults)
+                {
+                    <li>
+                        <h3><a href="@result.Content.Url()">@result.Content.Name</a></h3>
+                    </li>
+                }
+            </ul>
+        }
+
+    }
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+    $(function () {
+        $('input[type=radio]').each(function () {
+            var state = JSON.parse(localStorage.getItem('radio_' + $(this).attr('value')));
+            if (state) this.checked = state.checked;
+
+        });
+    });
+
+    $(window).bind('unload', function () {
+        $('input[type=radio]').each(function () {
+            localStorage.setItem('radio_' + $(this).attr('value'), JSON.stringify({ checked: this.checked })
+            );
+        });
+    });
+
+
+
+    var list = "/search?q="
+    list += ($('form#searchFilters input[type=hidden]').val());
+
+    //if(list.endsWith )
+    $('form#searchFilters input[type = radio]').on('change', function changeStuff() {
+        for (var i = 0; i <= $('form#searchFilters input[type=radio]:checked').length; i++) {
+            var $item = $('form#searchFilters input[type=radio]:checked')[i];
+            if ($item != null) {
+                list += ("&" + $item.name + "=" + $item.value);
+            }
+        }
+        var encodedParams = encodeURIComponent(list);
+        $('form#searchFilters').attr('action', list);
+
+
+
+        // $('form#searchFilters').submit();
+
+    });
+
+
+    //$(window).on('load', function () {
+    //    for (var i = 0; i <= $('form#searchFilters input[type=radio]:checked').length; i++) {
+    //        var $item = $('form#searchFilters input[type=radio]:checked')[i];
+    //        if ($item != null) {
+    //            list += ("&" + $item.name + "=" + $item.value);
+    //        }
+    //    }
+    //    $('form#searchFilters').attr('action', list);
+    //})
+
+
+    //var selectedRadios = $('form#searchFilters input[type=radio]:checked');
+    //var list = [];
+    //for (var i = 0; i <= selectedRadios.length; i++)
+    //{
+    //    var $item = $(selectedRadios[0]);
+    //    var nameAsQueryParam = item.name;
+    //    var value = $item.val();
+    //
+    //    list.Append("&" + name + "=" + value);
+    //
+    //}
+    //
+    //
+    //$(document).ready(function () {
+    //    let isChcked = localStorage.getItem()
+    //    $("form#searchFilters").submit(function (event) {
+    //        event.preventDefault();
+    //        $this = $(this);
+    //        // var url = rewrite_interval_qstring();
+    //        var min_price = $('#min_price').val();
+    //        var max_price = $('#max_price').val();
+    //        var url = $this.attr('action') + '?price=' + min_price + ',' + max_price;
+    //        window.location.href = url;
+    //    });
+    //});
+
+
+
+
+</script>
+@functions
+{
+
+}

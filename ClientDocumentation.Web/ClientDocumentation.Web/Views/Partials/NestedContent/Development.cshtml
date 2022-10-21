@@ -1,0 +1,25 @@
+﻿@model Client
+@{
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Prerequisites</h6>
+            </div>
+            <div class="card-body">
+                <p>@Model.Prerequisite</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Daily development</h6>
+            </div>
+            <div class="card-body">
+                <p>@Model.DailyDevelopment</p>
+            </div>
+        </div>
+    </div>
+    Html.RenderPartial($"~/Views/Partials/NestedContent/Environments.cshtml", Model.Environments);
+
+}

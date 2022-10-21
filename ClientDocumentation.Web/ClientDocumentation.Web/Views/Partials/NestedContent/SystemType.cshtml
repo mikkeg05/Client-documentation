@@ -1,0 +1,69 @@
+﻿@model SystemType
+@{
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Primary Systems</h6>
+
+            </div>
+            <div class="card-body">
+                @{
+                    List<string>
+                        systemName = Model.SystemName.Split(' ').ToList();
+                    List<string>
+                        pluginStrings = Model.Key.ToString().Split('-').ToList();
+                    var indexString = Model.SystemName;
+                    var pluginIndex = "a" + Model.Key.ToString();
+
+                    if (systemName.Any())
+                    {
+                        indexString = "";
+                        indexString = String.Join("", systemName);
+                    }
+                    if (pluginStrings.Any())
+                    {
+                        pluginIndex = "";
+                        pluginIndex = "a" + pluginStrings[0];
+                    }
+                }
+                <ul>
+
+                    <a href="#@indexString" class="d-block card-header py-3" data-toggle="collapse"
+                       role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                        <h6 class="m-0 font-weight-bold text-primary">@Model.SystemName</h6>
+                    </a>
+                    <div class="collapse" id="@indexString">
+                        <div class="card-body">
+
+                            <ul>
+                                <li><p>@Model.SystemName</p></li>
+                                <li><p>@Model.Version</p></li>
+                                <li><p>@Model.ProgrammingLanguage</p></li>
+                            </ul>
+                            <a href="#@pluginIndex" class="d-block card-header py-3" data-toggle="collapse"
+                               role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                                <h6 class="m-0 font-weight-bold text-primary">@Model.SystemName  Plugins</h6>
+                            </a>
+                            <div class="collapse" id="@pluginIndex">
+                                <div class="card-body">
+                                    <ul>
+                                        @foreach (var plugin in Model.Plugins)
+                                        {
+
+                                            <li>System Name: @plugin.SystemName</li>
+                                            <li>Version: @plugin.SystemName</li>
+                                            <li>Programming language: @plugin.ProgrammingLanguage</li>
+                                            <p>____________________________________________________________</p>
+
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+}

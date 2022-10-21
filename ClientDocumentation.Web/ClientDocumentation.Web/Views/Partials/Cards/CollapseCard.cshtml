@@ -1,0 +1,25 @@
+﻿
+@model ClientDocumentation.Web.Models.ViewModels.CardViewModel
+@using Umbraco.Core
+@{
+}
+
+@if (Model != null && Model.IsValid())
+{
+    <a href="#@Model.Id" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="@Model.Id">
+        <h6 class="m-0 font-weight-bold text-primary">@Model.Title</h6>
+    </a> <!-- Card Content - Collapse -->
+    <div class="collapse" id="@Model.Id">
+        <div class="card-body">
+            @if (Model.AdditionalInfo != null && Model.AdditionalInfo.Any())
+            {
+                foreach (var item in Model.AdditionalInfo)
+                {
+                    <p>@item.Key - @item.Value</p>
+                }
+            }
+
+            @Html.Raw(Model.Text)
+        </div>
+    </div>
+}

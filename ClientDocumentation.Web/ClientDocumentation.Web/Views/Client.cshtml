@@ -1,0 +1,87 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<ClientDocumentation.Web.Models.ModelsBuilder.Client>
+@using ClientDocumentation.Web.Models.ModelsBuilder;
+@using Umbraco.Core.Services;
+@using Umbraco.Web.Composing;
+
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+
+    var tabsAndValues = ClientDocumentation.Web.Business.NestedContentHElper.TabAndProperties(Model);
+    List<string> tabs = tabsAndValues.Keys.ToList();
+    List<string> umbracoPropertyGroups = new List<string>();
+}
+@{
+
+    var contentService = Current.Services.ContentTypeService;
+    var content = contentService.Get(Model.ContentType.Id);
+    foreach (PropertyGroup pg in content.CompositionPropertyGroups)
+    {
+        umbracoPropertyGroups.Add(pg.Alias.First().ToString().ToUpper() + String.Join("", pg.Alias.Skip(1)));
+    }
+
+    <div class="container-fluid">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">@Model.Name</h1>
+        </div>
+        <div id="content">
+
+            <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+                @{
+                    foreach (var umbTab in umbracoPropertyGroups)
+                    {
+                        var splitString = System.Text.RegularExpressions.Regex.Split(umbTab, @"(?<!^)(?=[A-Z])");
+                        string umbName = string.Join(" ", splitString);
+                        if (umbTab == umbracoPropertyGroups[0])
+                        {
+                            <li class="active">
+                                <a class="nav-link active" id="@umbTab-tab" data-toggle="tab" href="#@umbTab" aria-controls="@umbTab">@umbName</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                <a class="nav-link" id="@umbTab-tab" data-toggle="tab" href="#@umbTab" aria-controls="@umbTab">@umbName</a>
+                            </li>
+                        }
+                    }
+
+                    <!--lav tabs igen-->
+
+                }
+
+            </ul>
+        </div>
+        <div id="my-tab-content" class="tab-content">
+            @foreach (var umbTab in umbracoPropertyGroups)
+            {
+                if (umbTab == umbracoPropertyGroups[0])
+                {
+                    <div class="tab-pane fade show active" id="@umbTab" role="tabpanel" aria-labelledby="@umbTab-tab">
+                        <div class="row">
+                            @Html.Partial($"~/Views/Partials/NestedContent/{umbTab}.cshtml", Model)
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="tab-pane fade" id="@umbTab" role="tabpanel" aria-labelledby="@umbTab-tab">
+                        <div class="row">
+                            @Html.Partial($"~/Views/Partials/NestedContent/{umbTab}.cshtml", Model)
+                        </div>
+                    </div>
+                }
+            }
+            <!--put tabs tilbage?-->
+
+        </div>
+    </div>
+ 
+}
+
+@functions
+{
+
+
+}
+
+

@@ -1,0 +1,14 @@
+﻿@model Client
+@{
+    var clientDescription = Model.ClientData.FirstOrDefault(x => x.ContentType.Alias.Equals("clientDescription"));
+    var clientMasterDataItem = Model.ClientData.FirstOrDefault(x => x.ContentType.Alias.Equals("clientMasterDataItem"));
+    if(clientMasterDataItem != null) 
+    { 
+        Html.RenderPartial($"~/Views/Partials/NestedContent/ClientMasterDataItem.cshtml", clientMasterDataItem);
+    }
+    if(clientDescription != null)
+    {
+        Html.RenderPartial($"~/Views/Partials/NestedContent/ClientDescription.cshtml", clientDescription);
+    }
+
+}

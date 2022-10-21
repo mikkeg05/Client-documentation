@@ -1,0 +1,25 @@
+﻿@model Client
+@{
+    Html.RenderPartial($"~/Views/Partials/NestedContent/PrimarySystems.cshtml", Model.PrimarySystems);
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Major tech stack</h6>
+            </div>
+            <div class="card-body">
+                @if (!Model.Value("majorTechStack").ToString().IsNullOrWhiteSpace())
+                {
+                    var tags = Model.Value<IEnumerable<string>>("majorTechStack");
+                    <ul>
+                        @foreach (var tag in tags)
+                        {
+                            <li><a href="/Search?q=@tag">@tag</a></li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+    Html.RenderPartial($"~/Views/Partials/NestedContent/Integrations.cshtml", Model.Integrations);
+
+}

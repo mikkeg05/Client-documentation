@@ -1,0 +1,27 @@
+﻿@*@inherits Umbraco.Web.Mvc.UmbracoViewPage<ClientDocumentation.Web.Models.ViewModels.CreateUsersViewModel>*@
+@inherits Umbraco.Web.Mvc.UmbracoViewPage<ContentModels.CreateUsers>
+@using Umbraco.Web.Security;
+@using ContentModels = ClientDocumentation.Web.Models.ModelsBuilder;
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+
+}
+@{
+    var ticket = new HttpContextWrapper(HttpContext.Current).GetUmbracoAuthTicket();
+    bool userLoggedIn = ticket != null;
+}
+@if (userLoggedIn)
+{
+    using (Html.BeginUmbracoForm("UploadFile", "CreateUsers", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+
+        <input type="file" name="file" accept=".json" />
+        <input type="submit" value="upload" />
+    }
+} else if (!userLoggedIn) { <h2>Please login to Umbraco :^)</h2>}
+
+<!--<form action="/create-users/UploadFile" method="post">
+    <input type="file" name="file" />
+    <input type="submit" value="upload2" />
+
+</form>-->

@@ -1,0 +1,23 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<ContentModels.MemberSignUp>
+@using ContentModels = ClientDocumentation.Web.Models.ModelsBuilder;
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+@using (Html.BeginUmbracoForm("CreateMembers", "MemberSignUp", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div>
+        <label for="name">name</label>
+        <input type="text" name="name" id="name" />
+    </div>
+    <div>
+        <label for="email">Email address</label>
+        <input type="email" name="email" />
+    </div>
+    <div>
+        <label for="userName">User Name</label>
+        <input type="text" name="userName" />
+    </div>
+    
+    <input type="submit" />
+
+}

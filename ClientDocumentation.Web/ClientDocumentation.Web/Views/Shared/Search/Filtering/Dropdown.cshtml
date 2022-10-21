@@ -1,0 +1,14 @@
+﻿
+@model SelectList
+
+@if (Model != null && Model.Items != null)
+{
+
+    <select>
+        @foreach (var item in Model)
+        {
+            <option value="@item.Value">@item.Text</option>
+        }
+
+    </select>
+}

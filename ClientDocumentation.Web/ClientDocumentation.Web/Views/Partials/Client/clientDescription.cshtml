@@ -1,0 +1,17 @@
+﻿@model Client
+@{ 
+    
+
+    <p>@Model.ClientData.FirstOrDefault(x => x.ContentType.Alias.Equals("clientDescription", StringComparison.OrdinalIgnoreCase)).Properties.FirstOrDefault(x => x.Alias.Equals("description", StringComparison.OrdinalIgnoreCase)).Value()</p>
+    foreach(var item in Model.ClientData.FirstOrDefault(x => x.ContentType.Alias.Equals("clientDescription", StringComparison.OrdinalIgnoreCase)).Properties)
+    {
+        <p>@item.Value();</p>
+
+
+    }
+    if (1 + 1 == 2)
+    {
+
+    }
+    <p>haha</p>
+}

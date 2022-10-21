@@ -1,0 +1,9 @@
+﻿@model Client
+@{
+    <p>Client since: @Model.ClientData.First().Properties.FirstOrDefault(x => x.Alias.Equals("clientSince", StringComparison.OrdinalIgnoreCase)).Value()</p>
+    foreach (var item in Model.ClientData)
+    {
+        <li>@item.Properties.Select(x => x.Value())</li>
+    }
+}
+
