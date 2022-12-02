@@ -1,9 +1,12 @@
 ﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<ContentModels.Loginpage>
 @using ContentModels = ClientDocumentation.Web.Models.ModelsBuilder;
+@using Umbraco.Core.Services;
+@using Umbraco.Web.Composing;
 @{
     Layout = "/Views/Shared/_Layout.cshtml";
 }
 <h1>login pls :^)</h1>
 <div>
+
     @Model.Value("content")
 </div>

@@ -1,4 +1,5 @@
-﻿using ClientDocumentation.Web.Models.ViewModels;
+﻿using ClientDocumentation.Web.Business.Interfaces;
+using ClientDocumentation.Web.Models.ViewModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -13,7 +14,7 @@ using Umbraco.Core.Services;
 
 namespace ClientDocumentation.Web.Business.Services
 {
-    public class MyUserService : Interfaces.IMyUserService
+    public class MyUserService : IMyUserService
     {
         private readonly IUserService _userService;
 
@@ -32,17 +33,21 @@ namespace ClientDocumentation.Web.Business.Services
                 return null;
             }
         }
-        public void CreateUser(string json)
+        public List<IUser> CreateUser(string json)
         {
             List<UserViewModel> users = GetUserViewModels(json);
             if (!users.Any())
-                return;
-
+                return null;
+            List<IUser> userList = new List<IUser>();
             foreach (var user in users)
             {
                var newUser = _userService.CreateUserWithIdentity(user.FullName, user.Email);
                 _userService.Save(newUser);
+                userList.Add(newUser);
             }
+            return userList;
+            
         }
+        
     }
 }

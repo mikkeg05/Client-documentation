@@ -10,7 +10,7 @@ namespace ClientDocumentation.Web.Business.Interfaces
     public interface IMemberSignUpService
     {
         void CreateMembers(HttpRequestBase Request);
-        void CreateMembersOnUserSave(IUser content);
+        IMember CreateMembersOnUserSave(IUser content);
         void CreateMembersOnUserGroupSave(IUserGroup content);
     }
 }

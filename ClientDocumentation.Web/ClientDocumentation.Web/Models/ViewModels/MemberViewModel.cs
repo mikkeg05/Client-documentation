@@ -9,8 +9,8 @@ namespace ClientDocumentation.Web.Models.ViewModels
     public class MemberViewModel 
     {
         //[BindProperty(Name = "userName")]
-        public string userName { get; set; }
-        public string email { get; set; }
-        public string name { get; set; }
+        public string UserName { get; set; }
+        public string Email { get; set; }
+        public string Name { get; set; }
     }
 }

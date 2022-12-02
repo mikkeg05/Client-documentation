@@ -26,8 +26,8 @@ namespace ClientDocumentation.Web.Controllers
             _myUserService = userService;
         }
 
-        
-        public ActionResult Index(CreateUsers currentPage) 
+
+        public ActionResult Index(CreateUsers currentPage)
         {
             if (Request.InputStream != null && Request.InputStream.Length > 0)
             {
@@ -36,12 +36,12 @@ namespace ClientDocumentation.Web.Controllers
                 string json = reader.ReadToEnd();
                 _myUserService.CreateUser(json);
             }
-            
+
             return View("~/Views/CreateUsers.cshtml");
         }
-       
+
         [HttpPost]
-        public ActionResult UploadFile(CreateUsersViewModel model) 
+        public ActionResult UploadFile(CreateUsersViewModel model)
         {
             if (Request.InputStream != null && Request.InputStream.Length > 0)
             {
@@ -52,16 +52,16 @@ namespace ClientDocumentation.Web.Controllers
                         return CurrentUmbracoPage();
                 }
                 var reader = new StreamReader(Request.Files[0].InputStream);
-              
+
 
 
                 string json = reader.ReadToEnd();
                 string newJson = json;//.Replace("\n", "").Replace("\r", "").Replace("\"", "");
                 newJson = newJson.Substring(newJson.IndexOf('['));
-                newJson = newJson.Substring(0, newJson.IndexOf(']')+1);
+                newJson = newJson.Substring(0, newJson.IndexOf(']') + 1);
                 _myUserService.CreateUser(newJson);
             }
-            
+
             return CurrentUmbracoPage();
         }
     }

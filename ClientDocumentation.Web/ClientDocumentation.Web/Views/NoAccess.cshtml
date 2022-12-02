@@ -1,6 +1,15 @@
 ﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<ContentModels.NoAccess>
 @using ContentModels = ClientDocumentation.Web.Models.ModelsBuilder;
+
+@using Umbraco.Core.Services;
+@using Umbraco.Web.Composing;
+@using Umbraco.Core.Logging;
+
 @{
+    var loginStatusModel = Members.GetCurrentLoginStatus();
     Layout = "/Views/Shared/_Layout.cshtml";
+}
+@{ 
+    Current.Logger.Warn<UmbracoViewPage<ContentModels.NoAccess>>($"User {loginStatusModel.Name} attempted to access a restricted page. Please terminate immediately.");
 }
 <h1>Det må du ikke, Knud</h1>
