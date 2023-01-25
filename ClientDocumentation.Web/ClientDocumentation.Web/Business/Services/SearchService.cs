@@ -44,6 +44,8 @@ namespace ClientDocumentation.Web.Business.Services
             return Request.QueryString["q"]; 
         }
 
+
+
         public SearchPageViewModel GetSearchPageViewModel(Search search, HttpRequestBase Request, UmbracoContext context) 
         {
             List<string> strings = new List<string>();
@@ -51,10 +53,17 @@ namespace ClientDocumentation.Web.Business.Services
             {
                 strings.Add(Request.QueryString[i]);
             }
+
             List<DropdownViewModel> filter = new List<DropdownViewModel>();
 
             var dropdowns = _dropDownService.GetAllDropdowns();
-            foreach (var item in dropdowns) { filter.Add(item); }
+            
+            foreach (var item in dropdowns) 
+            { 
+                filter.Add(item); 
+            }
+
+
             _examineManager.TryGetIndex("InternalIndex", out var index);
             var searcher = index.GetSearcher();
             var searchPageViewModel = new SearchPageViewModel(search);
@@ -67,27 +76,41 @@ namespace ClientDocumentation.Web.Business.Services
             {
                 if (!string.IsNullOrEmpty(queryFilter))
                 {
-                    var filteredDropdowns = filterModel.Dropdowns.Select(x => x.DropdownItems.FirstOrDefault(z => z.Name == queryFilter)).OfType<DropdownListItem>();
+                    var filteredDropdowns = filterModel.Dropdowns
+                        .Select(x => x.DropdownItems.FirstOrDefault(z => z.Name == queryFilter))
+                        .OfType<DropdownListItem>();
+
                     if (filteredDropdowns.Any() && filteredDropdowns != null)
                     {
 
-                        filterModel.Dropdowns.Select(x => x.DropdownItems.FirstOrDefault(z => z.Name == queryFilter)).OfType<DropdownListItem>().FirstOrDefault().Selected = true;
+                        filterModel.Dropdowns.Select(x => x.DropdownItems
+                        .FirstOrDefault(z => z.Name == queryFilter))
+                            .OfType<DropdownListItem>().FirstOrDefault().Selected = true;
                     }
                 }
             }
+
             stringBuilder.Append(query);
             List<string> selectedItems = new List<string>();
             var filteredItems = filterModel.Dropdowns.Select(x => x.DropdownItems
                 .FindAll(z => z.Selected))
                 .Select(y => y
                 .Select(t => t.Name));
+
             foreach (var item in filteredItems)
             {
                 if (item.Any() && item.FirstOrDefault() != null && item.FirstOrDefault().Any())
                     selectedItems.Add(item.FirstOrDefault());
             }
-            var filteredNames = filterModel.Dropdowns.Where(x => x.IsSelectedAndValid()).Select(z => z.InputNameAttr);
+
+
+            var filteredNames = filterModel.Dropdowns
+                .Where(x => x.IsSelectedAndValid())
+                .Select(z => z.InputNameAttr);
+           
             List<string> selectedNames = new List<string>();
+
+
             if (filteredNames.Any() && filteredNames.First() != null && filteredNames.First().Any())
             {
                 foreach (var item in filteredNames)
@@ -113,11 +136,15 @@ namespace ClientDocumentation.Web.Business.Services
                     selectedNames.Add(newstring);
                 }
             }
+
+
             var stringParams = selectedNames.Zip(selectedItems, (n, i) => new { Name = n, Item = i });
             foreach (var ni in stringParams)
             {
                 stringBuilder.Append(" AND " + ni.Name + ":" + ni.Item.ToLower());
             }
+
+
             if (!string.IsNullOrEmpty(stringBuilder.ToString()))
             {
                 var searchResult = searcher.CreateQuery()
@@ -127,7 +154,9 @@ namespace ClientDocumentation.Web.Business.Services
                 long resultCount = searchResult != null && searchResult.Any() ? searchResult.Count() : 0;
                 if (resultCount > 0)
                 {
-                    searchPageViewModel.SearchResults = searchResult.Where(x => x.Content.Url() != string.Empty).Where(x => x.Content.ContentType.ItemType.ToString() != "Media");
+                    searchPageViewModel.SearchResults = searchResult
+                        .Where(x => x.Content.Url() != string.Empty)
+                        .Where(x => x.Content.ContentType.ItemType.ToString() != "Media");
 
                 }
             }
@@ -135,6 +164,8 @@ namespace ClientDocumentation.Web.Business.Services
             return searchPageViewModel;
 
         }
+
+
         public SearchPageViewModel GetSearchPageViewModel(Search search, List<string> strings, string query, UmbracoContext context)
         {
             //List<string> strings = new List<string>();

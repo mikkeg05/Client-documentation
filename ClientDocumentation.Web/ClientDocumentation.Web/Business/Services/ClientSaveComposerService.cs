@@ -23,7 +23,7 @@ namespace ClientDocumentation.Web.Business.Services
     {
         private readonly IPublicAccessService _publicAccessService;
         private readonly IMemberGroupService _memberGroupService;
-        private readonly JsonHelper _jsonHelper;
+        private readonly JsonHelper jsonHelper;
         private readonly IUserService _userService;
         private readonly IContentService _contentService;
         private readonly WebClient _client = new WebClient();
@@ -31,9 +31,9 @@ namespace ClientDocumentation.Web.Business.Services
         private readonly IRelationService _relationService;
         private readonly ILogger _logger;
         public ClientSaveComposerService
-           (IMediaService mediaService, IRelationService relationService, 
-            IContentService contentService, IUserService userService, 
-            IMemberGroupService memberGroupService, 
+           (IMediaService mediaService, IRelationService relationService,
+            IContentService contentService, IUserService userService,
+            IMemberGroupService memberGroupService,
             IPublicAccessService publicAccessService, ILogger logger)
         {
             _logger = logger;
@@ -41,7 +41,7 @@ namespace ClientDocumentation.Web.Business.Services
             _relationService = relationService;
             _contentService = contentService;
             _userService = userService;
-            _jsonHelper = new JsonHelper();
+            jsonHelper = new JsonHelper();
             _memberGroupService = memberGroupService;
             _publicAccessService = publicAccessService;
         }
@@ -59,7 +59,7 @@ namespace ClientDocumentation.Web.Business.Services
             if (typeof(T) == typeof(IContent))
             {
                 var content = (IContent)item;
-                
+
                 _logger.Info<ClientSaveComposerService>($"Umbraco found a media object: {content.Name}");
                 return _mediaService.GetPagedChildren(folderId, 0, pageSize, out total).Where(x => x.Name == content.Name);
             }
@@ -135,8 +135,8 @@ namespace ClientDocumentation.Web.Business.Services
         }
         public bool LookForDirtyProperties<T>(T publishedItem)
         {
-            
-            if(typeof(T) == typeof(IContent)) 
+
+            if (typeof(T) == typeof(IContent))
             {
                 var publishedContent = (IContent)publishedItem;
                 foreach (var prop in publishedContent.Properties)
@@ -147,12 +147,12 @@ namespace ClientDocumentation.Web.Business.Services
                     }
                 }
             }
-            if(typeof (T) == typeof(IPublishedContent)) 
+            if (typeof(T) == typeof(IPublishedContent))
             {
                 var publishedContent = (IPublishedContent)publishedItem;
-                if(publishedContent.Properties.Select(x => x.TryConvertTo<Property>().Success).Any()) 
-                { 
-                    foreach(var prop in publishedContent.Properties) 
+                if (publishedContent.Properties.Select(x => x.TryConvertTo<Property>().Success).Any())
+                {
+                    foreach (var prop in publishedContent.Properties)
                     {
                         var property = (Property)prop;
                         if (property.IsDirty()) { return true; }
@@ -210,7 +210,7 @@ namespace ClientDocumentation.Web.Business.Services
             List<IUser> existingUsers = new List<IUser>();
             if (userValues == null) { return; }
 
-            var teamMembers = _jsonHelper.GenericDeserializer<TeamMembers>(userValues);
+            var teamMembers = jsonHelper.GenericDeserializer<TeamMembers>(userValues);
 
             List<int> userIds = new List<int>();
             foreach (var item in teamMembers)
@@ -235,10 +235,7 @@ namespace ClientDocumentation.Web.Business.Services
                 _userService.Save(users);
                 return;
             }
-            //foreach (var item in publishedItem.Properties.Where(x => x.PropertyType.DataTypeId == 1077))
-            //{
-            //    userIds.Add(item.Id);
-            //}
+
             if (existingUserGroup != null)
             {
                 _userService.Save(existingUserGroup, userIds.ToArray());
@@ -250,9 +247,8 @@ namespace ClientDocumentation.Web.Business.Services
         }
 
 
-        public void ContentServicePublished(IMedia folder, IContent publishedItem, int contentTypeId, UmbracoHelper helper)
+        public void OnClientPublishEvent(IMedia folder, IContent publishedItem, UmbracoHelper helper)
         {
-
             var existingFolder = GetFolder(publishedItem, folder.Id);
             IMedia newMedia = _mediaService.CreateMedia(publishedItem.Name, folder.Id, "Folder");
             if (!existingFolder.Any())
@@ -260,12 +256,7 @@ namespace ClientDocumentation.Web.Business.Services
                 _mediaService.Save(newMedia);
             }
             existingFolder = GetFolder(publishedItem, folder.Id);
-            var relations = _relationService.GetByParentId(publishedItem.Id);
-            IRelation relation = relations.FirstOrDefault(x => x.RelationTypeId == 11);
-            if (relation == null)
-            {
-                _relationService.Relate(publishedItem.Id, existingFolder.FirstOrDefault().Id, "clientFolder");
-            }
+
             if (existingFolder != null && !GetFolder(existingFolder.FirstOrDefault(), folder.Id).Any())
             {
                 IMedia imagesFolder = _mediaService.CreateMedia("Images", existingFolder.FirstOrDefault().Id, "Folder");
@@ -275,128 +266,137 @@ namespace ClientDocumentation.Web.Business.Services
                 subfolders.Add(videoFolder);
                 _mediaService.Save(subfolders.AsEnumerable());
             }
-            if (GetFolder(existingFolder.FirstOrDefault(), folder.Id).Where(x => x.Name == "Images").Any())
+
+            var relations = _relationService.GetByParentId(publishedItem.Id);
+            IRelation relation = relations.FirstOrDefault(x => x.RelationTypeId == 11);
+            if (relation == null)
             {
-                relations = _relationService.GetByParentId(publishedItem.Id);
-                relation = relations.FirstOrDefault(x => x.RelationTypeId == 11);
-                if (relation != null)
+                _relationService.Relate(publishedItem.Id, existingFolder.FirstOrDefault().Id, "clientFolder");
+            }
+
+            var clientMediaFolder = existingFolder.FirstOrDefault();
+            var clientImageFolder = GetFolder(clientMediaFolder, "Images", folder.Id).FirstOrDefault();
+            var clientVideoFolder = GetFolder(clientMediaFolder, "Videos", folder.Id).FirstOrDefault();
+            var mediaPicker = GetProperties(publishedItem, 1051);
+            var imagePickers = GetMedia(publishedItem, 1053, 1054);
+
+            if (imagePickers.Any())
+            {
+                foreach (var prop in imagePickers)
                 {
-                    var clientMediaFolder = _mediaService.GetById(relation.ChildId);
-                    CreateUserGroups(publishedItem, clientMediaFolder);
-                    var clientImageFolder = GetFolder(clientMediaFolder, "Images", folder.Id).FirstOrDefault();
-                    var clientVideoFolder = GetFolder(clientMediaFolder, "Videos", folder.Id).FirstOrDefault();
-                    var mediaPicker = GetProperties(publishedItem, 1051);
+                    if (prop == null || prop.Values == null || !prop.Values.Any())
+                        continue;
 
-                    var imagePickers = GetMedia(publishedItem, 1053, 1054);
-
-                    if (imagePickers.Any())
+                    var value = publishedItem.GetValue(prop.Alias);
+                    if (value.ToString().Contains("mediaKey"))
                     {
-                        foreach (var prop in imagePickers)
-                        {
+                        List<KeyMediaKey> keyMedias = jsonHelper.GenericDeserializer<KeyMediaKey>(publishedItem.GetValue(prop.Alias).ToString());
+                        List<Guid> mediaKeys = new List<Guid>();
+                        foreach (var item in keyMedias) { mediaKeys.Add(item.MediaKey); }
+                        if (!mediaKeys.Any())
+                            continue;
 
-                            if (prop != null && prop.Values != null && prop.Values.Any())
-                            {
-                                if (prop.Values.Any())
-                                {
-                                    var value = publishedItem.GetValue(prop.Alias);
-                                    if (value.ToString().Contains("mediaKey"))
-                                    {
-                                        List<KeyMediaKey> keyMedias = _jsonHelper.GenericDeserializer<KeyMediaKey>(publishedItem.GetValue(prop.Alias).ToString());
-                                        List<Guid> mediaKeys = new List<Guid>();
-                                        foreach (var item in keyMedias) { mediaKeys.Add(item.MediaKey); }
-                                        if (mediaKeys.Any())
-                                        {
-                                            foreach (var mediaKey in mediaKeys)
-                                            {
-                                                var clientImage = _mediaService.GetById(mediaKey);
-                                                if (clientImage != null)
-                                                {
-                                                    IRelation mediaRelation = CheckMediaRelation(clientImage, publishedItem, 10);
-                                                    MoveOrCreate(mediaRelation, clientImage, clientImageFolder, publishedItem, "Image", prop);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        IPublishedContent mediaItem = helper.Media(value);
-                                        if (mediaItem != null)
-                                        {
-                                            var clientImage = _mediaService.GetById(mediaItem.Id);
-                                            if (clientImage != null)
-                                            {
-                                                IRelation mediaRelation = CheckMediaRelation(clientImage, publishedItem, 10);
-                                                MoveOrCreate(mediaRelation, clientImage, clientImageFolder, publishedItem, "Image", prop);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                        foreach (var mediaKey in mediaKeys)
+                        {
+                            var clientImage = _mediaService.GetById(mediaKey);
+
+                            if (clientImage == null)
+                                continue;
+
+                            IRelation mediaRelation = CheckMediaRelation(clientImage, publishedItem, 10);
+                            MoveOrCreate(mediaRelation, clientImage, clientImageFolder, publishedItem, "Image", prop);
                         }
                     }
-                    if (mediaPicker.Any())
+                    else
                     {
-                        foreach (var prop in mediaPicker)
-                        {
-                            if (prop != null && prop.Values != null)
-                            {
-                                var value = publishedItem.GetValue(prop.Alias);
-                                if (value.ToString().Contains("mediaKey"))
-                                {
-                                    List<KeyMediaKey> keyMedias = _jsonHelper.GenericDeserializer<KeyMediaKey>(publishedItem.GetValue(prop.Alias).ToString());
-                                    List<Guid> mediaKeys = new List<Guid>();
-                                    foreach (var item in keyMedias) { mediaKeys.Add(item.MediaKey); }
-                                    if (mediaKeys.Any())
-                                    {
-                                        foreach (var mediaKey in mediaKeys)
-                                        {
-                                            var clientVideo = _mediaService.GetById(mediaKey);
-                                            if (clientVideo != null)
-                                            {
-                                                IRelation mediaRelation = CheckMediaRelation(clientVideo, publishedItem, 10);
-                                                MoveOrCreate(mediaRelation, clientVideo, clientVideoFolder, publishedItem, "umbracoMediaVideo", prop);
-                                            }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    IPublishedContent mediaItem = helper.Media(value);
-                                    if (mediaItem != null)
-                                    {
-                                        var clientVideo = _mediaService.GetById(mediaItem.Id);
-                                        if (clientVideo != null)
-                                        {
-                                            IRelation mediaRelation = CheckMediaRelation(clientVideo, publishedItem, 10);
-                                            MoveOrCreate(mediaRelation, clientVideo, clientVideoFolder, publishedItem, "umbracoMediaVideo", prop);
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        IPublishedContent mediaItem = helper.Media(value);
+                        if (mediaItem == null)
+                            continue;
+
+                        var clientImage = _mediaService.GetById(mediaItem.Id);
+
+                        if (clientImage == null)
+                            continue;
+
+                        IRelation mediaRelation = CheckMediaRelation(clientImage, publishedItem, 10);
+                        MoveOrCreate(mediaRelation, clientImage, clientImageFolder, publishedItem, "Image", prop);
                     }
                 }
             }
+            if (mediaPicker.Any())
+            {
+                foreach (var prop in mediaPicker)
+                {
+                    if (prop == null || prop.Values == null || !prop.Values.Any())
+                        continue;
+
+                    var value = publishedItem.GetValue(prop.Alias);
+                    if (value.ToString().Contains("mediaKey"))
+                    {
+                        List<KeyMediaKey> keyMedias = jsonHelper.GenericDeserializer<KeyMediaKey>(publishedItem.GetValue(prop.Alias).ToString());
+                        List<Guid> mediaKeys = new List<Guid>();
+                        foreach (var item in keyMedias) { mediaKeys.Add(item.MediaKey); }
+
+                        if (!mediaKeys.Any())
+                            continue;
+
+                        foreach (var mediaKey in mediaKeys)
+                        {
+                            var clientVideo = _mediaService.GetById(mediaKey);
+
+                            if (clientVideo == null)
+                                continue;
+
+                            IRelation mediaRelation = CheckMediaRelation(clientVideo, publishedItem, 10);
+                            MoveOrCreate(mediaRelation, clientVideo, clientVideoFolder, publishedItem, "umbracoMediaVideo", prop);
+                        }
+                    }
+                    else
+                    {
+                        IPublishedContent mediaItem = helper.Media(value);
+                        if (mediaItem == null)
+                            continue;
+
+                        var clientVideo = _mediaService.GetById(mediaItem.Id);
+
+                        if (clientVideo == null)
+                            continue;
+
+                        IRelation mediaRelation = CheckMediaRelation(clientVideo, publishedItem, 10);
+                        MoveOrCreate(mediaRelation, clientVideo, clientVideoFolder, publishedItem, "umbracoMediaVideo", prop);
+                    }
+                }
+            }
+
+            CreateUserGroups(publishedItem, clientMediaFolder);
             CreateMemberGroups(publishedItem);
+
             if (publishedItem.Properties.FirstOrDefault(x => x.PropertyType.DataTypeId == -49).GetValue().TryConvertTo<int>().Result == 1)
             {
                 var rule = Current.Services.PublicAccessService.GetEntryForContent(publishedItem);
-
-                if (rule == null)
+                if (rule != null)
                 {
-                    var homePage = _contentService.GetRootContent().FirstOrDefault();
-                    var loginPage = GetContent(homePage, "Loginpage").FirstOrDefault();
-                    var noAccess = GetContent(homePage, "No access").FirstOrDefault();
-
-                    if (homePage != null && loginPage != null && noAccess != null)
-                    {
-                        var newRule = new PublicAccessEntry(publishedItem, loginPage, noAccess, new List<PublicAccessRule>());
-                        var memberGroup = _memberGroupService.GetByName(publishedItem.Name);
-                        newRule.AddRule(memberGroup.Name, Umbraco.Core.Constants.Conventions.PublicAccess.MemberRoleRuleType);
-                        _publicAccessService.Save(newRule);
-                    }
+                    goto ExitIf;
                 }
+
+                var homePage = _contentService.GetRootContent().FirstOrDefault();
+                var loginPage = GetContent(homePage, "Loginpage").FirstOrDefault();
+                var noAccess = GetContent(homePage, "No access").FirstOrDefault();
+
+                if (homePage == null || loginPage == null || noAccess == null)
+                {
+                    goto ExitIf;
+                }
+
+                var newRule = new PublicAccessEntry(publishedItem, loginPage, noAccess, new List<PublicAccessRule>());
+                var memberGroup = _memberGroupService.GetByName(publishedItem.Name);
+                newRule.AddRule(memberGroup.Name, PublicAccess.MemberRoleRuleType);
+                _publicAccessService.Save(newRule);
+
+            ExitIf:
+                ;
             }
+
             if (LookForDirtyProperties<IContent>(publishedItem))
             {
                 _contentService.Save(publishedItem);

@@ -80,8 +80,8 @@ namespace ClientDocumentation.Web.Test
             Assert.AreEqual(clientMock.Object.Name, expected);
             Assert.IsNotNull(testClient);
         }
-        [Test]
 
+        [Test]
         public void TestNegativeCreateClient()
         {
             Mock<IContent> clientMock = new Mock<IContent>();
@@ -155,32 +155,37 @@ namespace ClientDocumentation.Web.Test
     public class TestMemberViewModel : UmbracoBaseTest
     {
 
-
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
         }
         [Test]
-        [TestCase("cool@cool.dk", "mikkel :)")]
+        [TestCase("mail@mail.dk", "mikkel :)")]
+        [TestCase("mail@mail.dk", "")]
         public void TestMemberSignup(string email, string userName)
         {
             var _memberSignUpService = A.Fake<IMemberSignUpService>();
             Mock<IUser> userMock = new Mock<IUser>();
             Mock<IMember> memberMock = new Mock<IMember>();
 
-
+            userMock.Setup(x => x.Email).Returns(email);
+            userMock.Setup(x => x.Username).Returns(userName);
 
             memberMock.Setup(x => x.Email).Returns(email);
             memberMock.Setup(x => x.Username).Returns(userName);
 
-            memberService.Setup(x => x.CreateMember(userName, email, userName, "Member"));
-            var newMember = memberService.Object.CreateMember(userName, email, userName, "Member");
             A.CallTo(() => _memberSignUpService.CreateMembersOnUserSave(userMock.Object)).Returns(memberMock.Object);
             MemberSignupService.Setup(x => x.CreateMembersOnUserSave(userMock.Object)).Returns(memberMock.Object);
+
             var newMock = _memberSignUpService.CreateMembersOnUserSave(userMock.Object);
 
-            MemberViewModel memberViewModel = new MemberViewModel { Email = newMock.Email, Name = newMock.Username, UserName = newMock.Username };
+            MemberViewModel memberViewModel = new MemberViewModel 
+            { 
+                Email = newMock.Email, 
+                Name = newMock.Username, 
+                UserName = newMock.Username 
+            };
 
             Assert.AreEqual(userName, memberViewModel.UserName);
             Assert.AreEqual(email, memberViewModel.Email);
@@ -189,7 +194,6 @@ namespace ClientDocumentation.Web.Test
             Assert.IsInstanceOf<IMember>(_memberSignUpService.CreateMembersOnUserSave(userMock.Object));
             MemberSignupService.Verify();
         }
-
     }
     [TestFixture]
     public class TestMediaComposerService : UmbracoBaseTest

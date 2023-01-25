@@ -11,7 +11,7 @@
     List<string> umbracoPropertyGroups = new List<string>();
 }
 @{
-
+    
     var contentService = Current.Services.ContentTypeService;
     var content = contentService.Get(Model.ContentType.Id);
     foreach (PropertyGroup pg in content.CompositionPropertyGroups)

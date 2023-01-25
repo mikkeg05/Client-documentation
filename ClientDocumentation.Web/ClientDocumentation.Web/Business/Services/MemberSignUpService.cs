@@ -68,6 +68,11 @@ namespace ClientDocumentation.Web.Business.Services
                     var newMember = _memberService.CreateMember(newName, existingUser.Email, existingUser.Name, "Member");
                     newMember.LastPasswordChangeDate = DateTime.Now;
 
+                    if(string.IsNullOrEmpty(newMember.Username)|| string.IsNullOrEmpty(newMember.Name)) 
+                    { 
+                        return null; 
+                    }
+
                     _memberService.Save(newMember);
                     _memberService.SavePassword(newMember, "12345qwert");
 

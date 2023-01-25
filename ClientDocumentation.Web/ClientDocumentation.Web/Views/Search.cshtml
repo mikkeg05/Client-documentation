@@ -16,7 +16,8 @@
                 foreach (var item in Model.Filter.AllDropdowns)
                 {
                     <div class="dropdown show">
-                        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" 
+                           id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             @item.InputNameAttr
                         </a>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
@@ -58,6 +59,7 @@
 
     }
 </div>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script type="text/javascript">
 
@@ -81,7 +83,6 @@
     var list = "/search?q="
     list += ($('form#searchFilters input[type=hidden]').val());
 
-    //if(list.endsWith )
     $('form#searchFilters input[type = radio]').on('change', function changeStuff() {
         for (var i = 0; i <= $('form#searchFilters input[type=radio]:checked').length; i++) {
             var $item = $('form#searchFilters input[type=radio]:checked')[i];
@@ -91,10 +92,6 @@
         }
         var encodedParams = encodeURIComponent(list);
         $('form#searchFilters').attr('action', list);
-
-
-
-        // $('form#searchFilters').submit();
 
     });
 

@@ -19,7 +19,7 @@ namespace ClientDocumentation.Web.Business.Interfaces
         string GetMediaPath(string jsonValues);
         IEnumerable<Property> GetProperties(IContent publishedItem, int dataTypeId); 
         void CreateUserGroups(IContent publishedItem, IMedia folder);
-        void ContentServicePublished(IMedia folder, IContent publishedItem, int contentTypeId, UmbracoHelper helper);
+        void OnClientPublishEvent(IMedia folder, IContent publishedItem, UmbracoHelper helper);
         void CreateMemberGroups(IContent publishedItem);
 
     }

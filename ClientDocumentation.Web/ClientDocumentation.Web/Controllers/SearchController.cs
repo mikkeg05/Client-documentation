@@ -36,10 +36,7 @@ namespace ClientDocumentation.Web.Controllers
         {
             var content = currentPage.Content;
             Search search = new Search(content);
-            
-            var stringList = _searchService.QueryStrings(Request);
-            var requestQuery = _searchService.GetRequestQuery(Request);
-            //SearchPageViewModel searchPageViewModel = _searchService.GetSearchPageViewModel(search, stringList, requestQuery, UmbracoContext);
+
             SearchPageViewModel searchPageViewModel = _searchService.GetSearchPageViewModel(search, Request, UmbracoContext);
 
             return View("~/Views/Search.cshtml", searchPageViewModel);

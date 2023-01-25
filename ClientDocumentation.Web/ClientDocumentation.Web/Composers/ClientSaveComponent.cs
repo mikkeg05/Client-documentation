@@ -62,7 +62,7 @@ namespace ClientDocumentation.Web.Composers
             {
                 
                 if(publishedItem.ContentTypeId == 1068)
-                    _clientSaveService.ContentServicePublished(clientFolder, publishedItem, publishedItem.ContentTypeId, helper);
+                    _clientSaveService.OnClientPublishEvent(clientFolder, publishedItem, helper);
             }
             
         }

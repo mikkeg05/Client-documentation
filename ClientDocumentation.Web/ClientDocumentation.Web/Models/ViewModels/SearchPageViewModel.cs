@@ -11,11 +11,9 @@ namespace ClientDocumentation.Web.Models.ViewModels
 {
     public class SearchPageViewModel : ContentModel
     {
-        
-
         public SearchPageViewModel(IPublishedContent content) : base(content) { }
         public string NoResultMessage { get; set; }
-        //public ISearchResults SearchResults { get; set; }
+        
         public IEnumerable<PublishedSearchResult> SearchResults { get; set; }
         public long? ResultCount => SearchResults?.LongCount();
         public SearchFilterViewModel Filter { get; set; }
